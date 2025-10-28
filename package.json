@@ -1,0 +1,12 @@
+{
+  "name": "algo-arena",
+  "version": "1.0.0",
+  "description": "Mini multi-language competitive programming judge",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  }
+}

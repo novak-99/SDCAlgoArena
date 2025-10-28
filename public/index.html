@@ -1,0 +1,1248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Algo Arena</title>
+<style>
+    :root {
+        --bg-dark: #0f172a;
+        --bg-card: #1e253a;
+        --bg-card-hover: #2a324f;
+        --border: #3a425f;
+        --text-main: #f8fafc;
+        --text-dim: #94a3b8;
+        --accent: #38bdf8;
+        --accent-bg: rgba(56,189,248,0.12);
+        --radius-lg: 1rem;
+        --radius-sm: 0.5rem;
+        --font-stack: ui-monospace, SFMono-Regular, Menlo, Consolas, Liberation Mono, monospace;
+        --font-ui: system-ui, -apple-system, BlinkMacSystemFont, "Inter", Roboto, "Helvetica Neue", sans-serif;
+    }
+
+    * { box-sizing:border-box; }
+    body {
+        margin:0;
+        background-color:var(--bg-dark);
+        color:var(--text-main);
+        font-family:var(--font-ui);
+        display:flex;
+        min-height:100vh;
+    }
+
+    .layout {
+        display:grid;
+        grid-template-columns:250px 1fr;
+        width:100%;
+        min-height:100vh;
+    }
+    @media (max-width:800px){
+        .layout { grid-template-columns:1fr; }
+        aside {
+            order:2;
+            border-right:none;
+            border-top:1px solid var(--border);
+            max-height:40vh;
+            overflow-y:auto;
+        }
+        main { order:1; }
+    }
+
+    aside {
+        background-color:#111827;
+        border-right:1px solid var(--border);
+        padding:1rem;
+        overflow-y:auto;
+    }
+    main {
+        display:flex;
+        flex-direction:column;
+        padding:1rem 1rem 3.5rem;
+        gap:1rem;
+        min-width:0;
+    }
+
+    .brand {
+        font-weight:600;
+        font-size:1rem;
+        color:var(--text-main);
+        display:flex;
+        align-items:baseline;
+        justify-content:space-between;
+        margin-bottom:1rem;
+    }
+    .brand span {
+        background:var(--accent-bg);
+        color:var(--accent);
+        font-size:0.7rem;
+        font-weight:500;
+        padding:0.15rem 0.5rem;
+        border-radius:var(--radius-sm);
+        border:1px solid var(--accent);
+    }
+
+    .section-block {
+        margin-bottom:1rem;
+        border:1px solid var(--border);
+        border-radius:var(--radius-lg);
+        background-color:var(--bg-card);
+    }
+    .section-head {
+        user-select:none;
+        cursor:pointer;
+        padding:0.75rem 1rem;
+        font-size:0.9rem;
+        font-weight:600;
+        color:var(--text-main);
+        background-color:var(--bg-card);
+        border-bottom:1px solid var(--border);
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+    }
+    .section-head .tag {
+        font-size:0.7rem;
+        font-weight:500;
+        color:var(--accent);
+        background:var(--accent-bg);
+        border-radius:var(--radius-sm);
+        padding:0.15rem 0.4rem;
+        line-height:1.2;
+        border:1px solid var(--accent);
+    }
+
+    .problem-list {
+        list-style:none;
+        padding:0.5rem 0;
+        margin:0;
+    }
+    .problem-item {
+        cursor:pointer;
+        padding:0.6rem 0.9rem;
+        font-size:0.85rem;
+        color:var(--text-main);
+        display:flex;
+        flex-direction:column;
+        gap:0.2rem;
+        border-left:3px solid transparent;
+    }
+    .problem-item:hover {
+        background-color:var(--bg-card-hover);
+    }
+    .problem-item.active {
+        background-color:var(--bg-card-hover);
+        border-left:3px solid var(--accent);
+    }
+
+    .problem-top-row {
+        display:flex;
+        align-items:baseline;
+        justify-content:space-between;
+        gap:0.5rem;
+    }
+    .difficulty {
+        font-size:0.65rem;
+        font-weight:500;
+        padding:0.15rem 0.4rem;
+        line-height:1.2;
+        border-radius:var(--radius-sm);
+        background-color:#1e293b;
+        border:1px solid var(--border);
+        color:var(--text-dim);
+        flex-shrink:0;
+    }
+    .problem-desc {
+        color:var(--text-dim);
+        font-size:0.7rem;
+        line-height:1.2;
+        white-space:nowrap;
+        text-overflow:ellipsis;
+        overflow:hidden;
+    }
+
+    .problem-card {
+        background-color:var(--bg-card);
+        border:1px solid var(--border);
+        border-radius:var(--radius-lg);
+        padding:1rem 1.25rem;
+    }
+    .problem-header {
+        display:flex;
+        flex-wrap:wrap;
+        align-items:baseline;
+        justify-content:space-between;
+        row-gap:0.5rem;
+        column-gap:1rem;
+    }
+    .problem-header-left { min-width:0; }
+    .problem-title {
+        font-size:1rem;
+        font-weight:600;
+        color:var(--text-main);
+        line-height:1.4;
+    }
+    .problem-meta {
+        font-size:0.75rem;
+        color:var(--text-dim);
+        display:flex;
+        gap:0.75rem;
+        flex-wrap:wrap;
+        line-height:1.4;
+    }
+    .pill {
+        display:inline-block;
+        background:var(--accent-bg);
+        color:var(--accent);
+        border:1px solid var(--accent);
+        padding:0.15rem 0.5rem;
+        font-size:0.7rem;
+        line-height:1.2;
+        border-radius:var(--radius-sm);
+        font-weight:500;
+    }
+
+    .statement {
+        margin-top:1rem;
+        color:var(--text-main);
+        font-size:0.85rem;
+        line-height:1.5;
+        white-space:pre-line;
+    }
+
+    .io-spec {
+        margin-top:1rem;
+        padding:0.75rem 1rem;
+        border-radius:var(--radius-sm);
+        background-color:#111827;
+        border:1px solid var(--border);
+    }
+    .io-spec h3 {
+        margin:0 0 0.5rem;
+        font-size:0.8rem;
+        font-weight:600;
+        color:var(--accent);
+    }
+    .io-spec p {
+        margin:0 0 0.5rem;
+        font-size:0.75rem;
+        line-height:1.4;
+        color:var(--text-dim);
+    }
+    .io-spec code {
+        background-color:#0f172a;
+        border:1px solid #334155;
+        border-radius:4px;
+        padding:0.15rem 0.4rem;
+        font-size:0.7rem;
+        font-family:var(--font-stack);
+        color:var(--text-main);
+        word-break:break-word;
+    }
+
+    .editor-card {
+        background-color:var(--bg-card);
+        border:1px solid var(--border);
+        border-radius:var(--radius-lg);
+        display:flex;
+        flex-direction:column;
+        min-height:240px;
+    }
+    .editor-head {
+        padding:0.75rem 1rem;
+        border-bottom:1px solid var(--border);
+        display:flex;
+        flex-wrap:wrap;
+        align-items:center;
+        gap:0.75rem;
+        justify-content:space-between;
+        color:var(--text-main);
+        font-size:0.8rem;
+        font-weight:500;
+    }
+    .editor-head-left {
+        display:flex;
+        flex-direction:column;
+        gap:0.25rem;
+    }
+    .editor-head-left .filename {
+        font-family:var(--font-stack);
+        font-size:0.75rem;
+        font-weight:600;
+        color:var(--text-main);
+    }
+    .editor-head-left .hint {
+        font-size:0.7rem;
+        color:var(--text-dim);
+        line-height:1.2;
+    }
+
+    .editor-controls {
+        display:flex;
+        flex-wrap:wrap;
+        gap:0.5rem;
+        align-items:center;
+    }
+
+    select#lang-select {
+        background-color:#0f172a;
+        color:var(--text-main);
+        border:1px solid var(--border);
+        border-radius:var(--radius-sm);
+        padding:0.4rem 0.5rem;
+        font-size:0.75rem;
+        font-family:var(--font-ui);
+        cursor:pointer;
+    }
+
+    button.run-btn {
+        appearance:none;
+        border:1px solid var(--accent);
+        background-color:var(--accent-bg);
+        color:var(--accent);
+        padding:0.5rem 0.75rem;
+        border-radius:var(--radius-sm);
+        font-size:0.75rem;
+        font-weight:600;
+        cursor:pointer;
+        line-height:1.2;
+    }
+    button.run-btn:hover { filter:brightness(1.1); }
+
+    textarea#editor {
+        flex:1;
+        width:100%;
+        min-height:180px;
+        resize:vertical;
+        background-color:#0f172a;
+        color:var(--text-main);
+        border:none;
+        border-bottom:1px solid var(--border);
+        outline:none;
+        font-size:0.8rem;
+        line-height:1.4;
+        padding:1rem;
+        font-family:var(--font-stack);
+        border-radius:0;
+    }
+
+    .console-card {
+        background-color:#0f172a;
+        border-top:1px solid var(--border);
+        font-family:var(--font-stack);
+        font-size:0.75rem;
+        line-height:1.4;
+        color:var(--text-main);
+        max-height:180px;
+        overflow-y:auto;
+        padding:0.75rem 1rem;
+        border-bottom-left-radius:var(--radius-lg);
+        border-bottom-right-radius:var(--radius-lg);
+    }
+
+    .console-line.pass {
+        color:#4ade80;
+        font-weight:500;
+    }
+    .console-line.fail {
+        color:#f87171;
+        font-weight:500;
+    }
+    .console-summary {
+        margin-top:0.5rem;
+        padding-top:0.5rem;
+        border-top:1px solid var(--border);
+        font-weight:600;
+    }
+    .console-summary.pass { color:#4ade80; }
+    .console-summary.fail { color:#f87171; }
+
+    footer {
+        text-align:center;
+        font-size:0.7rem;
+        color:var(--text-dim);
+        padding-bottom:1rem;
+    }
+</style>
+</head>
+<body>
+<div class="layout">
+    <aside>
+        <div class="brand">
+            <div>Algo&nbsp;Arena</div>
+            <span>beta</span>
+        </div>
+
+        <div class="section-block" data-section="greedy">
+            <div class="section-head" data-toggle="section">
+                <div>Greedy Algorithms</div>
+                <div class="tag">3 problems</div>
+            </div>
+            <ul class="problem-list" data-problem-list="greedy"></ul>
+        </div>
+
+        <div class="section-block" data-section="dp">
+            <div class="section-head" data-toggle="section">
+                <div>Dynamic Programming</div>
+                <div class="tag">2 problems</div>
+            </div>
+            <ul class="problem-list" data-problem-list="dp"></ul>
+        </div>
+    </aside>
+
+    <main>
+        <!-- PROBLEM STATEMENT -->
+        <section class="problem-card">
+            <div class="problem-header">
+                <div class="problem-header-left">
+                    <div class="problem-title" id="problem-title">Loading…</div>
+                    <div class="problem-meta">
+                        <div id="problem-category-pill" class="pill">Category</div>
+                        <div id="problem-difficulty" class="pill" style="background:transparent;border:1px solid var(--border);color:var(--text-dim);">
+                            difficulty
+                        </div>
+                        <div id="problem-id" class="pill" style="background-color:#1e293b;border-color:#475569;color:#cbd5e1;">
+                            #id
+                        </div>
+                    </div>
+                </div>
+                <div class="problem-meta" style="margin-left:auto;">
+                    <div><strong>Function:</strong>
+                        <code id="problem-entry-fn"
+                            style="font-family:var(--font-stack);color:var(--accent);background:var(--accent-bg);border:1px solid var(--accent);padding:0.15rem 0.4rem;border-radius:4px;font-size:0.7rem;">
+                        </code>
+                    </div>
+                </div>
+            </div>
+
+            <div class="statement" id="problem-statement"></div>
+
+            <div class="io-spec">
+                <h3>What you implement</h3>
+                <p id="problem-io"></p>
+                <p style="margin-top:0.75rem;">
+                    You don't read stdin and you don't print. Just implement the function that’s described.
+                    We'll call it internally on hidden tests.
+                </p>
+            </div>
+        </section>
+
+        <!-- EDITOR -->
+        <section class="editor-card">
+            <div class="editor-head">
+                <div class="editor-head-left">
+                    <div class="filename">
+                        <span id="filename-label">solution.js</span>
+                    </div>
+                    <div class="hint" id="editor-hint">Write your solution in JavaScript.</div>
+                </div>
+
+                <div class="editor-controls">
+                    <select id="lang-select">
+                        <option value="js">JavaScript</option>
+                        <option value="py">Python</option>
+                        <option value="cpp">C++</option>
+                        <option value="java">Java</option>
+                    </select>
+                    <button class="run-btn" id="run-tests-btn">▶ Run Tests</button>
+                </div>
+            </div>
+
+            <textarea id="editor" spellcheck="false"></textarea>
+
+            <div class="console-card" id="console"></div>
+        </section>
+
+        <footer>
+            This basic platforms explores basic algorithmic problems solved by greedy & DP.
+            <br />
+            Multi-language editor supports: JS, Python, C++, and Java.
+            These are graded in sandbox containers.
+        </footer>
+    </main>
+</div>
+
+<script>
+/**************************************************************
+ * LANG CONFIG
+ **************************************************************/
+const LANG_META = {
+    js:   { label:"JavaScript", fileExt:".js",
+            hint:"Write your solution in JavaScript. We'll run it in Node." },
+    py:   { label:"Python", fileExt:".py",
+            hint:"Write your solution in Python. We'll run it with Python3 in a sandbox." },
+    cpp:  { label:"C++", fileExt:".cpp",
+            hint:"Write your solution in C++17 (single file). We'll compile with g++ and run." },
+    java: { label:"Java", fileExt:".java",
+            hint:"Write your solution in Java. Put your function in class Solution as shown." },
+};
+const SUPPORTED_LANGS = Object.keys(LANG_META);
+
+/**************************************************************
+ * REFERENCE DATA (tests mirror backend; kept in sync)
+ **************************************************************/
+const KNAPSACK_CASE_1 = {
+    items: [
+        {weight:10,value:60},
+        {weight:20,value:100},
+        {weight:30,value:120},
+    ],
+    capacity: 50
+};
+const KNAPSACK_CASE_2 = {
+    items: [
+        {weight:6,value:25},
+        {weight:5,value:24},
+        {weight:4,value:15},
+        {weight:2,value:7},
+    ],
+    capacity: 10
+};
+const ACTIVITY_TESTS = [
+    {
+        intervals: [
+            {start:1,end:3},
+            {start:2,end:5},
+            {start:4,end:7},
+            {start:1,end:8},
+            {start:5,end:9},
+            {start:8,end:10},
+        ],
+    },
+    {
+        intervals: [
+            {start:0,end:2},
+            {start:1,end:3},
+            {start:3,end:4},
+            {start:2,end:5},
+            {start:5,end:6},
+        ],
+    }
+];
+const COIN_TESTS = [
+    {coins:[1,2,5], amount:11},
+    {coins:[2], amount:3},
+    {coins:[2,4,6], amount:8},
+];
+
+/**************************************************************
+ * PROBLEM BANK
+ * Now: starterCode per language (js,py,cpp,java)
+ **************************************************************/
+const problemBank = {
+    greedy: [
+        {
+            id: "greedy_knapsack",
+            title: "0/1 Knapsack (Greedy Version)",
+            difficulty: "Medium",
+            category: "Greedy",
+            entryFn: "solveKnapsackGreedy",
+            baseFilename: "knapsack_greedy",
+            statement: [
+                "You are given N items. Each item has:",
+                "  • weight (positive int)",
+                "  • value (positive int)",
+                "",
+                "Backpack capacity = C.",
+                "You can either take each item whole or leave it (0/1 knapsack).",
+                "",
+                "Greedy task:",
+                "  1. Sort items by value/weight ratio descending.",
+                "  2. Walk the list; if it fits, take it entirely.",
+                "  3. Stop when full.",
+                "",
+                "Return the TOTAL VALUE taken.",
+                "",
+                "Note: This is *not* guaranteed optimal for 0/1 knapsack. We accept the greedy result here on purpose 😈"
+            ].join("\n"),
+            ioSpec: [
+                "Implement:",
+                "    JS:   function solveKnapsackGreedy(items, capacity) { ... }",
+                "    Py:   def solveKnapsackGreedy(items, capacity): ...",
+                "    C++:  int solveKnapsackGreedy(vector<Item> items, int capacity);",
+                "    Java: public static int solveKnapsackGreedy(ArrayList<Item> items, int capacity)",
+                "",
+                "items looks like [{weight:10,value:60}, ...]",
+                "Return the greedy-picked total value."
+            ].join("\n"),
+            starterCode: {
+                js:
+`// Greedy 0/1 Knapsack (JS)
+function solveKnapsackGreedy(items, capacity) {
+    // sort by (value/weight) descending
+    const arr = [...items].sort((a,b)=>(b.value/b.weight)-(a.value/a.weight));
+    let total = 0;
+    let rem = capacity;
+    for (const it of arr) {
+        if (it.weight <= rem) {
+            total += it.value;
+            rem -= it.weight;
+        }
+    }
+    return total;
+}`,
+                py:
+`# Greedy 0/1 Knapsack (Python)
+# items: [{"weight": int, "value": int}, ...]
+# capacity: int
+def solveKnapsackGreedy(items, capacity):
+    arr = sorted(items, key=lambda it: it["value"]/it["weight"], reverse=True)
+    total = 0
+    rem = capacity
+    for it in arr:
+        if it["weight"] <= rem:
+            total += it["value"]
+            rem -= it["weight"]
+    return total
+`,
+                cpp:
+`// Greedy 0/1 Knapsack (C++17)
+#include <vector>
+#include <algorithm>
+using namespace std;
+
+struct Item {
+    int weight;
+    int value;
+};
+
+int solveKnapsackGreedy(vector<Item> items, int capacity) {
+    sort(items.begin(), items.end(), [](const Item &a, const Item &b){
+        return (double)a.value/a.weight > (double)b.value/b.weight;
+    });
+    int total = 0;
+    int rem = capacity;
+    for (auto &it : items) {
+        if (it.weight <= rem) {
+            total += it.value;
+            rem -= it.weight;
+        }
+    }
+    return total;
+}
+`,
+                java:
+`import java.util.*;
+
+class Item {
+    int weight;
+    int value;
+    Item(int w, int v){ this.weight=w; this.value=v; }
+}
+
+public class Solution {
+    // Return greedy ratio-descending packed value
+    public static int solveKnapsackGreedy(ArrayList<Item> items, int capacity) {
+        items.sort((a,b)->Double.compare(
+            (double)b.value/b.weight,
+            (double)a.value/a.weight
+        ));
+        int total = 0;
+        int rem = capacity;
+        for (Item it : items) {
+            if (it.weight <= rem) {
+                total += it.value;
+                rem -= it.weight;
+            }
+        }
+        return total;
+    }
+}
+`
+            },
+            tests: [
+                { input: [KNAPSACK_CASE_1.items, KNAPSACK_CASE_1.capacity] },
+                { input: [KNAPSACK_CASE_2.items, KNAPSACK_CASE_2.capacity] },
+            ],
+            sectionOpenByDefault: true
+        },
+        {
+            id: "activity_selection",
+            title: "Activity Selection (Classic Greedy)",
+            difficulty: "Easy",
+            category: "Greedy",
+            entryFn: "solveActivitySelection",
+            baseFilename: "activity_selection",
+            statement: [
+                "You get activities with (start,end). You can only do one at a time.",
+                "Pick the max number of non-overlapping activities.",
+                "",
+                "Greedy trick:",
+                "  1. Sort by earliest finishing time",
+                "  2. Repeatedly pick the next activity that starts after the last one ended",
+                "",
+                "Return that max number."
+            ].join("\n"),
+            ioSpec: [
+                "JS:   function solveActivitySelection(intervals) { ... }",
+                "Py:   def solveActivitySelection(intervals): ...",
+                "C++:  int solveActivitySelection(vector<Interval> intervals);",
+                "Java: public static int solveActivitySelection(ArrayList<Interval> intervals)",
+                "",
+                "intervals looks like [{start:1,end:3}, ...]."
+            ].join("\n"),
+            starterCode: {
+                js:
+`// Activity Selection (JS)
+function solveActivitySelection(intervals) {
+    const arr = [...intervals].sort((a,b)=>a.end-b.end);
+    let count = 0;
+    let lastEnd = -Infinity;
+    for (const iv of arr) {
+        if (iv.start >= lastEnd) {
+            count++;
+            lastEnd = iv.end;
+        }
+    }
+    return count;
+}`,
+                py:
+`# Activity Selection (Python)
+def solveActivitySelection(intervals):
+    arr = sorted(intervals, key=lambda iv: iv["end"])
+    count = 0
+    last_end = float("-inf")
+    for iv in arr:
+        if iv["start"] >= last_end:
+            count += 1
+            last_end = iv["end"]
+    return count
+`,
+                cpp:
+`// Activity Selection (C++17)
+#include <vector>
+#include <algorithm>
+using namespace std;
+
+struct Interval {
+    int start;
+    int end;
+};
+
+int solveActivitySelection(vector<Interval> intervals) {
+    sort(intervals.begin(), intervals.end(),
+         [](const Interval&a,const Interval&b){return a.end<b.end;});
+    int count=0;
+    int lastEnd = -1000000000;
+    for (auto &iv : intervals) {
+        if (iv.start >= lastEnd) {
+            count++;
+            lastEnd = iv.end;
+        }
+    }
+    return count;
+}
+`,
+                java:
+`import java.util.*;
+
+class Interval {
+    int start;
+    int end;
+    Interval(int s,int e){ this.start=s; this.end=e; }
+}
+
+public class Solution {
+    public static int solveActivitySelection(ArrayList<Interval> intervals) {
+        intervals.sort((a,b)->Integer.compare(a.end,b.end));
+        int count = 0;
+        int lastEnd = Integer.MIN_VALUE;
+        for (Interval iv : intervals) {
+            if (iv.start >= lastEnd) {
+                count++;
+                lastEnd = iv.end;
+            }
+        }
+        return count;
+    }
+}
+`
+            },
+            tests: ACTIVITY_TESTS.map(tc => ({ input: [tc.intervals] })),
+            sectionOpenByDefault: true
+        },
+        {
+            id: "greedy_knapsack_vs_optimal_note",
+            title: "READ ME: Why Greedy Can Lose",
+            difficulty: "Info",
+            category: "Greedy",
+            entryFn: "noFunctionHere",
+            baseFilename: "README_GREEDY_VS_DP",
+            statement: [
+                "Greedy-by-ratio for 0/1 Knapsack can be wrong.",
+                "",
+                "capacity=50, items:",
+                " (10,60), (20,100), (30,120)",
+                "Greedy takes (10,60)+(20,100)=160.",
+                "Optimal takes (20,100)+(30,120)=220.",
+                "",
+                "Greedy section: 160 is \"accepted\".",
+                "DP section: you MUST return 220."
+            ].join("\n"),
+            ioSpec: "No code to submit here.",
+            starterCode: {
+                js:`// info only`,
+                py:`# info only`,
+                cpp:`// info only`,
+                java:`// info only`
+            },
+            tests: [],
+            sectionOpenByDefault: true
+        }
+    ],
+
+    dp: [
+        {
+            id: "dp_knapsack",
+            title: "0/1 Knapsack (Optimal DP Version)",
+            difficulty: "Medium",
+            category: "Dynamic Programming",
+            entryFn: "solveKnapsackOptimal",
+            baseFilename: "knapsack_dp",
+            statement: [
+                "Same setup as Greedy Knapsack:",
+                "  N items (weight, value), capacity C, 0/1 choice.",
+                "",
+                "Now return the TRUE optimal max total value.",
+                "",
+                "Standard DP:",
+                "  dp[w] = best value for capacity w so far.",
+                "  For each item: for w from C down to weight:",
+                "    dp[w] = max(dp[w], dp[w-weight]+value).",
+                "",
+                "Return dp[C]."
+            ].join("\n"),
+            ioSpec: [
+                "JS:   function solveKnapsackOptimal(items, capacity) { ... }",
+                "Py:   def solveKnapsackOptimal(items, capacity): ...",
+                "C++:  int solveKnapsackOptimal(vector<Item> items, int capacity);",
+                "Java: public static int solveKnapsackOptimal(ArrayList<Item> items, int capacity)",
+                "",
+                "Return the OPTIMAL max value."
+            ].join("\n"),
+            starterCode: {
+                js:
+`// Optimal 0/1 Knapsack (JS)
+function solveKnapsackOptimal(items, capacity) {
+    const dp = new Array(capacity+1).fill(0);
+    for (const it of items) {
+        for (let w = capacity; w >= it.weight; w--) {
+            dp[w] = Math.max(dp[w], dp[w - it.weight] + it.value);
+        }
+    }
+    return dp[capacity];
+}`,
+                py:
+`# Optimal 0/1 Knapsack (Python)
+def solveKnapsackOptimal(items, capacity):
+    dp = [0]*(capacity+1)
+    for it in items:
+        wgt = it["weight"]; val = it["value"]
+        for w in range(capacity, wgt-1, -1):
+            dp[w] = max(dp[w], dp[w - wgt] + val)
+    return dp[capacity]
+`,
+                cpp:
+`// Optimal 0/1 Knapsack (C++17)
+#include <vector>
+#include <algorithm>
+using namespace std;
+
+struct Item {
+    int weight;
+    int value;
+};
+
+int solveKnapsackOptimal(vector<Item> items, int capacity) {
+    vector<int> dp(capacity+1,0);
+    for (auto &it : items) {
+        for (int w = capacity; w >= it.weight; --w) {
+            dp[w] = max(dp[w], dp[w - it.weight] + it.value);
+        }
+    }
+    return dp[capacity];
+}
+`,
+                java:
+`import java.util.*;
+
+class Item {
+    int weight;
+    int value;
+    Item(int w,int v){ this.weight=w; this.value=v; }
+}
+
+public class Solution {
+    public static int solveKnapsackOptimal(ArrayList<Item> items, int capacity) {
+        int[] dp = new int[capacity+1];
+        for (Item it : items) {
+            for (int w = capacity; w >= it.weight; w--) {
+                dp[w] = Math.max(dp[w], dp[w - it.weight] + it.value);
+            }
+        }
+        return dp[capacity];
+    }
+}
+`
+            },
+            tests: [
+                { input: [KNAPSACK_CASE_1.items, KNAPSACK_CASE_1.capacity] },
+                { input: [KNAPSACK_CASE_2.items, KNAPSACK_CASE_2.capacity] },
+            ],
+            sectionOpenByDefault: true
+        },
+        {
+            id: "coin_change",
+            title: "Coin Change (Min Coins)",
+            difficulty: "Easy",
+            category: "Dynamic Programming",
+            entryFn: "solveCoinChange",
+            baseFilename: "coin_change",
+            statement: [
+                "You're given coin denominations and a target amount.",
+                "Each coin can be used unlimited times.",
+                "",
+                "Return the MINIMUM # of coins to make exactly that amount.",
+                "If impossible, return -1.",
+                "",
+                "dp[x] = fewest coins to make x.",
+                "dp[0] = 0."
+            ].join("\n"),
+            ioSpec: [
+                "JS:   function solveCoinChange(coins, amount) { ... }",
+                "Py:   def solveCoinChange(coins, amount): ...",
+                "C++:  int solveCoinChange(vector<int> coins, int amount);",
+                "Java: public static int solveCoinChange(int[] coins, int amount)",
+                "",
+                "Return min #coins or -1."
+            ].join("\n"),
+            starterCode: {
+                js:
+`// Coin Change (JS)
+function solveCoinChange(coins, amount) {
+    const INF = 1e9;
+    const dp = new Array(amount+1).fill(INF);
+    dp[0] = 0;
+    for (let a=1; a<=amount; a++) {
+        for (const c of coins) {
+            if (c <= a) {
+                dp[a] = Math.min(dp[a], dp[a-c] + 1);
+            }
+        }
+    }
+    return dp[amount] >= INF ? -1 : dp[amount];
+}`,
+                py:
+`# Coin Change (Python)
+def solveCoinChange(coins, amount):
+    INF = 10**9
+    dp = [INF]*(amount+1)
+    dp[0] = 0
+    for a in range(1, amount+1):
+        for c in coins:
+            if c <= a:
+                dp[a] = min(dp[a], dp[a-c] + 1)
+    return -1 if dp[amount] >= INF else dp[amount]
+`,
+                cpp:
+`// Coin Change (C++17)
+#include <vector>
+#include <algorithm>
+using namespace std;
+
+int solveCoinChange(vector<int> coins, int amount) {
+    const int INF = 1000000000;
+    vector<int> dp(amount+1, INF);
+    dp[0] = 0;
+    for (int a=1; a<=amount; ++a){
+        for (int c : coins){
+            if (c <= a){
+                dp[a] = min(dp[a], dp[a-c] + 1);
+            }
+        }
+    }
+    return (dp[amount] >= INF) ? -1 : dp[amount];
+}
+`,
+                java:
+`import java.util.*;
+
+public class Solution {
+    public static int solveCoinChange(int[] coins, int amount) {
+        final int INF = 1000000000;
+        int[] dp = new int[amount+1];
+        Arrays.fill(dp, INF);
+        dp[0] = 0;
+        for (int a=1; a<=amount; a++){
+            for (int c: coins){
+                if (c <= a){
+                    dp[a] = Math.min(dp[a], dp[a-c] + 1);
+                }
+            }
+        }
+        return dp[amount] >= INF ? -1 : dp[amount];
+    }
+}
+`
+            },
+            tests: COIN_TESTS.map(tc => ({ input: [tc.coins, tc.amount] })),
+            sectionOpenByDefault: true
+        }
+    ]
+};
+
+/**************************************************************
+ * STATE
+ **************************************************************/
+let currentProblem = null;
+let currentLang = "js";
+const userSolutions = {}; // { problemId: {js,py,cpp,java} }
+
+/**************************************************************
+ * SIDEBAR RENDER
+ **************************************************************/
+function buildSidebar() {
+    const greedyListEl = document.querySelector('[data-problem-list="greedy"]');
+    greedyListEl.innerHTML = "";
+    for (const p of problemBank.greedy) {
+        greedyListEl.appendChild(renderProblemListItem(p, "greedy"));
+    }
+
+    const dpListEl = document.querySelector('[data-problem-list="dp"]');
+    dpListEl.innerHTML = "";
+    for (const p of problemBank.dp) {
+        dpListEl.appendChild(renderProblemListItem(p, "dp"));
+    }
+
+    document.querySelectorAll('.section-head[data-toggle="section"]').forEach(head => {
+        head.addEventListener('click', () => {
+            const block = head.closest('.section-block');
+            const ul = block.querySelector('.problem-list');
+            const isHidden = ul.style.display === "none";
+            ul.style.display = isHidden ? "" : "none";
+        });
+    });
+
+    for (const block of document.querySelectorAll('.section-block')) {
+        const sectionName = block.getAttribute('data-section');
+        const listEl = block.querySelector('.problem-list');
+        const plist = problemBank[sectionName];
+        const anyOpen = plist.some(pb => pb.sectionOpenByDefault);
+        if (!anyOpen) {
+            listEl.style.display = "none";
+        }
+    }
+}
+
+function renderProblemListItem(problem, sectionName) {
+    const li = document.createElement('li');
+    li.className = 'problem-item';
+    li.setAttribute('data-problem-id', problem.id);
+    li.setAttribute('data-problem-section', sectionName);
+
+    const topRow = document.createElement('div');
+    topRow.className = 'problem-top-row';
+
+    const titleSpan = document.createElement('span');
+    titleSpan.textContent = problem.title;
+    titleSpan.style.fontWeight = "600";
+    titleSpan.style.color = "var(--text-main)";
+    titleSpan.style.fontSize = "0.8rem";
+
+    const diffSpan = document.createElement('span');
+    diffSpan.className = 'difficulty';
+    diffSpan.textContent = problem.difficulty;
+
+    topRow.appendChild(titleSpan);
+    topRow.appendChild(diffSpan);
+
+    const desc = document.createElement('div');
+    desc.className = 'problem-desc';
+    desc.textContent = problem.category + " • " + problem.baseFilename;
+
+    li.appendChild(topRow);
+    li.appendChild(desc);
+
+    li.addEventListener('click', () => {
+        selectProblem(sectionName, problem.id);
+    });
+
+    return li;
+}
+function markActiveSidebarItem(problemId) {
+    document.querySelectorAll('.problem-item').forEach(li => {
+        if (li.getAttribute('data-problem-id') === problemId) {
+            li.classList.add('active');
+        } else {
+            li.classList.remove('active');
+        }
+    });
+}
+
+/**************************************************************
+ * PROBLEM / EDITOR RENDER
+ **************************************************************/
+function ensureSolutionSlots(problemId) {
+    if (!userSolutions[problemId]) {
+        userSolutions[problemId] = { js:null, py:null, cpp:null, java:null };
+    }
+}
+function persistCurrentEditorCode() {
+    if (!currentProblem) return;
+    ensureSolutionSlots(currentProblem.id);
+    const editorEl = document.getElementById('editor');
+    userSolutions[currentProblem.id][currentLang] = editorEl.value;
+}
+function loadEditorFor(problem, lang) {
+    ensureSolutionSlots(problem.id);
+    let code = userSolutions[problem.id][lang];
+    if (code == null) {
+        code = problem.starterCode[lang] || "";
+    }
+    document.getElementById('editor').value = code;
+
+    document.getElementById('filename-label').textContent =
+        problem.baseFilename + LANG_META[lang].fileExt;
+    document.getElementById('editor-hint').textContent =
+        LANG_META[lang].hint;
+    document.getElementById('problem-entry-fn').textContent =
+        problem.entryFn;
+}
+function renderProblemPanel(problem) {
+    document.getElementById('problem-title').textContent = problem.title;
+    document.getElementById('problem-category-pill').textContent = problem.category;
+    document.getElementById('problem-difficulty').textContent = problem.difficulty;
+    document.getElementById('problem-id').textContent = "#" + problem.id;
+    document.getElementById('problem-entry-fn').textContent = problem.entryFn;
+    document.getElementById('problem-statement').textContent = problem.statement;
+    document.getElementById('problem-io').textContent = problem.ioSpec;
+}
+
+/**************************************************************
+ * SELECT PROBLEM
+ **************************************************************/
+function selectProblem(sectionName, problemId) {
+    persistCurrentEditorCode();
+    const problemList = problemBank[sectionName];
+    const problem = problemList.find(p => p.id === problemId);
+    if (!problem) return;
+    currentProblem = problem;
+
+    renderProblemPanel(problem);
+    loadEditorFor(problem, currentLang);
+
+    document.getElementById('console').innerHTML = "";
+    markActiveSidebarItem(problemId);
+}
+
+/**************************************************************
+ * RUN TESTS (calls backend /run)
+ **************************************************************/
+function logConsole(el, text, cls) {
+    const line = document.createElement('div');
+    line.className = "console-line " + cls;
+    line.textContent = text;
+    el.appendChild(line);
+}
+
+async function runCurrentTests() {
+    persistCurrentEditorCode();
+    const consoleEl = document.getElementById('console');
+    consoleEl.innerHTML = "";
+
+    if (!currentProblem) {
+        logConsole(consoleEl,"No problem selected.","fail");
+        return;
+    }
+    if (!currentProblem.tests || currentProblem.tests.length === 0) {
+        logConsole(consoleEl,"No tests for this item (it's informational).","pass");
+        return;
+    }
+
+    const codeToSend = userSolutions[currentProblem.id][currentLang]
+        ?? currentProblem.starterCode[currentLang];
+
+    const payload = {
+        lang: currentLang,
+        problemId: currentProblem.id,
+        code: codeToSend
+    };
+
+    let data;
+    try {
+        const resp = await fetch('/run', {
+            method:'POST',
+            headers:{'Content-Type':'application/json'},
+            body: JSON.stringify(payload),
+        });
+        data = await resp.json();
+    } catch(err) {
+        logConsole(consoleEl,"Judge error / network error:\n"+err,"fail");
+        return;
+    }
+
+    if (data.error) {
+        logConsole(consoleEl,"❌ "+data.error,"fail");
+    } else if (data.results) {
+        data.results.forEach((r,idx)=>{
+            if (r.error) {
+                logConsole(
+                    consoleEl,
+                    `Test ${idx+1}: ❌ Error\n  ${r.error}`,
+                    "fail"
+                );
+            } else if (r.passed) {
+                logConsole(
+                    consoleEl,
+                    `Test ${idx+1}: PASS ✅  (got ${JSON.stringify(r.got)})`,
+                    "pass"
+                );
+            } else {
+                logConsole(
+                    consoleEl,
+                    `Test ${idx+1}: FAIL ❌\n  expected ${JSON.stringify(r.expected)}\n  got      ${JSON.stringify(r.got)}`,
+                    "fail"
+                );
+            }
+        });
+
+        const summaryDiv = document.createElement('div');
+        summaryDiv.className = "console-summary " + (data.allPassed ? "pass":"fail");
+        summaryDiv.textContent = data.message;
+        consoleEl.appendChild(summaryDiv);
+    } else {
+        logConsole(consoleEl,"Unknown judge response.", "fail");
+    }
+}
+
+/**************************************************************
+ * LANGUAGE SWITCH
+ **************************************************************/
+function switchLanguage(lang) {
+    persistCurrentEditorCode();
+    currentLang = lang;
+    if (currentProblem) {
+        loadEditorFor(currentProblem, currentLang);
+        document.getElementById('console').innerHTML="";
+    }
+}
+
+/**************************************************************
+ * EVENT LISTENERS
+ **************************************************************/
+document.getElementById('run-tests-btn').addEventListener('click', runCurrentTests);
+document.getElementById('lang-select').addEventListener('change', e=>{
+    switchLanguage(e.target.value);
+});
+
+/**************************************************************
+ * INIT
+ **************************************************************/
+function init() {
+    buildSidebar();
+    selectProblem("greedy", "greedy_knapsack");
+    document.getElementById('lang-select').value = currentLang;
+}
+init();
+</script>
+</body>
+</html>
