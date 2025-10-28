@@ -1169,11 +1169,11 @@ async function runCurrentTests() {
 
     let data;
     try {
-        const resp = await fetch('/run', {
-            method:'POST',
-            headers:{'Content-Type':'application/json'},
-            body: JSON.stringify(payload),
-        });
+        const resp = await fetch('https://vast-waves-tickle.loca.lt/run', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify(payload),
+});
         data = await resp.json();
     } catch(err) {
         logConsole(consoleEl,"Judge error / network error:\n"+err,"fail");
