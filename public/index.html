@@ -1137,7 +1137,7 @@ async function runCurrentTests() {
     try {
         const resp = await fetch('https://tracker-investigated-thank-consequently.trycloudflare.com/run', {
     method:'POST',
-    headers:{'Content-Type':'application/json', 'User-Agent': 'MyAppClient/1.0'},
+    headers:{'Content-Type':'application/json'},
     body: JSON.stringify(payload),
 });
         data = await resp.json();
