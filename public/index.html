@@ -1135,9 +1135,9 @@ async function runCurrentTests() {
 
     let data;
     try {
-        const resp = await fetch('https://plenty-points-kneel.loca.lt/run', {
+        const resp = await fetch('https://fine-books-kneel.loca.lt/run', {
     method:'POST',
-    headers:{'Content-Type':'application/json'},
+    headers:{'Content-Type':'application/json', 'bypass-tunnel-reminder':'true'},
     body: JSON.stringify(payload),
 });
         data = await resp.json();
